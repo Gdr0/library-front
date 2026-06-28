@@ -1,0 +1,99 @@
+<mat-sidenav-container class="min-h-dvh bg-slate-50">
+  <mat-sidenav
+    #drawer
+    class="w-72! border-r! border-slate-200! bg-white!"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+  >
+    <div class="flex h-full min-h-dvh flex-col">
+      <div class="flex h-20 items-center gap-3 px-6">
+        <span class="text-2xl font-semibold tracking-tight text-slate-950">
+          Library
+        </span>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <nav class="flex-1 px-3 py-5" aria-label="Navigazione principale">
+        <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+          Menu
+        </p>
+
+        <mat-nav-list class="space-y-1">
+          <a
+            mat-list-item
+            routerLink="/dashboard"
+            routerLinkActive="active-link"
+            (click)="closeOnMobile(drawer)"
+          >
+            <mat-icon matListItemIcon>dashboard</mat-icon>
+            <span matListItemTitle>Dashboard</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/loans"
+            routerLinkActive="active-link"
+            (click)="closeOnMobile(drawer)"
+          >
+            <mat-icon matListItemIcon>swap_horiz</mat-icon>
+            <span matListItemTitle>Prestiti</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/books"
+            routerLinkActive="active-link"
+            (click)="closeOnMobile(drawer)"
+          >
+            <mat-icon matListItemIcon>menu_book</mat-icon>
+            <span matListItemTitle>Libri</span>
+          </a>
+
+          <a
+            mat-list-item
+            routerLink="/clients"
+            routerLinkActive="active-link"
+            (click)="closeOnMobile(drawer)"
+          >
+            <mat-icon matListItemIcon>group</mat-icon>
+            <span matListItemTitle>Clienti</span>
+          </a>
+        </mat-nav-list>
+      </nav>
+
+      <div class="border-t border-slate-200 p-4">
+        @if (user(); as currentUser) {
+          <div class="mb-3 px-3">
+            <p class="truncate text-sm font-medium text-slate-800">{{ currentUser.name }}</p>
+            <p class="truncate text-xs text-slate-500">{{ currentUser.email }}</p>
+          </div>
+        }
+
+        <button
+          mat-button
+          type="button"
+          class="w-full justify-start!"
+          [disabled]="loggingOut()"
+          (click)="logout()"
+        >
+          <mat-icon>logout</mat-icon>
+          {{ loggingOut() ? 'Uscita…' : 'Esci' }}
+        </button>
+      </div>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="sticky top-0 z-20 border-b border-slate-200 bg-white! px-4! md:hidden">
+      <button mat-icon-button type="button" aria-label="Apri menu" (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="ml-2 font-semibold"></span>
+    </mat-toolbar>
+
+    <div class="min-h-dvh p-5 sm:p-8 lg:p-10">
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
