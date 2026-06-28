@@ -1,8 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { Book, BookService } from '../../services/book-service';
+import { BookDialog } from './book-dialog/book-dialog';
 
 @Component({
   selector: 'app-books',
@@ -10,12 +13,17 @@ import { Book, BookService } from '../../services/book-service';
     MatTableModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    MatButtonModule,
+    MatDialogModule,
   ],
   templateUrl: './books.html',
   styleUrl: './books.scss',
 })
 export class Books implements OnInit {
-  private bookService = inject(BookService);
+  constructor(
+    private bookService: BookService,
+    private dialog: MatDialog,
+  ) {}
 
   books = signal<Book[]>([]);
   totalBooks = signal(0);
@@ -52,5 +60,26 @@ export class Books implements OnInit {
 
   changePage(event: PageEvent): void {
     this.loadBooks(event.pageIndex + 1);
+  }
+
+  createBook(): void {
+    this.openDialog(null);
+  }
+
+  editBook(book: Book): void {
+    this.openDialog(book.id);
+  }
+
+  private openDialog(bookId: number | null): void {
+    const dialogRef = this.dialog.open(BookDialog, {
+      width: '600px',
+      data: bookId,
+    });
+
+    dialogRef.afterClosed().subscribe((saved) => {
+      if (saved) {
+        this.loadBooks(this.currentPage());
+      }
+    });
   }
 }

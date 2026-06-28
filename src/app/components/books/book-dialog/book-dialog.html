@@ -1,0 +1,118 @@
+<h2 mat-dialog-title>
+  {{ bookId ? 'Modifica libro' : 'Nuovo libro' }}
+</h2>
+
+<form [formGroup]="bookForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    @if (loading) {
+      <div class="flex justify-center py-12">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="grid gap-3">
+        <mat-form-field appearance="fill">
+          <mat-label>Titolo</mat-label>
+          <input matInput formControlName="title" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>ISBN</mat-label>
+          <input matInput formControlName="isbn" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Editore</mat-label>
+          <input
+            matInput
+            formControlName="editorSearch"
+            [matAutocomplete]="editorAutocomplete"
+            (focus)="searchEditors()"
+            (input)="searchEditors($event)"
+          />
+
+          <mat-autocomplete
+            #editorAutocomplete="matAutocomplete"
+            [displayWith]="displayEditor"
+            (optionSelected)="selectEditor($event)"
+          >
+            @for (editor of editorOptions; track editor.id) {
+              <mat-option [value]="editor">
+                {{ editor.name }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Autori</mat-label>
+          <input
+            matInput
+            formControlName="authorSearch"
+            [matAutocomplete]="authorAutocomplete"
+            (focus)="searchAuthors()"
+            (input)="searchAuthors($event)"
+            placeholder="Cerca nome o cognome"
+          />
+
+          <mat-autocomplete
+            #authorAutocomplete="matAutocomplete"
+            [displayWith]="displayAuthor"
+            (optionSelected)="selectAuthor($event)"
+          >
+            @for (author of authorOptions; track author.id) {
+              <mat-option [value]="author">
+                {{ author.name }} {{ author.last_name }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-chip-set aria-label="Autori selezionati">
+          @for (author of selectedAuthors; track author.id) {
+            <mat-chip-row (removed)="removeAuthor(author)">
+              {{ author.name }} {{ author.last_name }}
+              <button matChipRemove type="button" aria-label="Rimuovi autore">
+                ×
+              </button>
+            </mat-chip-row>
+          }
+        </mat-chip-set>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Quantità</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="total_quantity"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Sinossi</mat-label>
+          <textarea
+            matInput
+            formControlName="synopsis"
+          ></textarea>
+        </mat-form-field>
+
+        @if (error) {
+          <p class="text-red-600">{{ error }}</p>
+        }
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [mat-dialog-close]="false">
+      Annulla
+    </button>
+
+    <button
+      mat-flat-button
+      type="submit"
+      [disabled]="bookForm.invalid || loading || saving"
+    >
+      {{ saving ? 'Salvataggio...' : 'Salva' }}
+    </button>
+  </mat-dialog-actions>
+</form>

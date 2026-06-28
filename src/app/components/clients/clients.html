@@ -1,6 +1,10 @@
 <section>
-  <div class="mb-4">
+  <div class="mb-4 flex items-center justify-between">
     <h1 class="text-xl font-semibold">Clienti</h1>
+
+    <button mat-flat-button type="button" (click)="createClient()">
+      Crea nuovo cliente
+    </button>
   </div>
 
   @if (loading()) {
@@ -44,7 +48,12 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="cursor-pointer"
+        (click)="editClient(row)"
+      ></tr>
     </table>
 
     <mat-paginator

@@ -25,6 +25,13 @@ export interface ClientsResponse {
   clients: PaginatedClients;
 }
 
+export type ClientPayload = Omit<
+  Client,
+  'id' | 'created_at' | 'updated_at'
+> & {
+  id?: number;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -41,6 +48,21 @@ export class ClientService {
     return this._http.get<ClientsResponse>(
       `${this.apiUrl}/clientIndex`,
       { params },
+    );
+  }
+
+  getClientById(id: number): Observable<{ client: Client }> {
+    return this._http.get<{ client: Client }>(
+      `${this.apiUrl}/getClientById/${id}`,
+    );
+  }
+
+  createOrUpdateClient(
+    payload: ClientPayload,
+  ): Observable<{ client: Client; message: string }> {
+    return this._http.post<{ client: Client; message: string }>(
+      `${this.apiUrl}/CreateOrUpdateClient`,
+      payload,
     );
   }
 }
