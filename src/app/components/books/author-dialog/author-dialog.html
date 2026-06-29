@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>Nuovo autore</h2>
+
+<form [formGroup]="authorForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <div class="grid gap-3">
+      <mat-form-field appearance="fill">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Cognome</mat-label>
+        <input matInput formControlName="last_name" />
+      </mat-form-field>
+
+      @if (error) {
+        <p class="text-red-600">{{ error }}</p>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [mat-dialog-close]="undefined">Annulla</button>
+    <button mat-flat-button type="submit" [disabled]="authorForm.invalid || saving">
+      {{ saving ? 'Salvataggio...' : 'Salva' }}
+    </button>
+  </mat-dialog-actions>
+</form>

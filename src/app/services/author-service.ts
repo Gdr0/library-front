@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Author } from './book-service';
 
+export interface AuthorPayload {
+  last_name: string;
+  name: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -18,6 +23,13 @@ export class AuthorService {
     return this._http.get<{ authors: Author[] }>(
       `${this.apiUrl}/getAuthors`,
       { params },
+    );
+  }
+
+  createAuthor(payload: AuthorPayload): Observable<{ author: Author; message: string }> {
+    return this._http.post<{ author: Author; message: string }>(
+      `${this.apiUrl}/createAuthor`,
+      payload,
     );
   }
 }

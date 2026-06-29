@@ -54,7 +54,7 @@
         <tr
           mat-row
           *matRowDef="let row; columns: displayedColumns"
-          class="cursor-pointer"
+          class="cursor-pointer transition-colors hover:bg-slate-50"
           (click)="editClient(row)"
         ></tr>
       </table>

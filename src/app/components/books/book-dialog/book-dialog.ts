@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormArray,
@@ -15,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
@@ -29,6 +31,7 @@ import {
   Editor,
 } from '../../../services/book-service';
 import { EditorService } from '../../../services/editor-service';
+import { ConfirmationDialog } from '../../../shared/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-book-dialog',
@@ -71,6 +74,7 @@ export class BookDialog implements OnInit {
     private bookService: BookService,
     private authorService: AuthorService,
     private editorService: EditorService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<BookDialog>,
     @Inject(MAT_DIALOG_DATA) public bookId: number | null,
   ) {
@@ -135,37 +139,50 @@ export class BookDialog implements OnInit {
   }
 
   save(): void {
-    // se non è valido li segna come toccati, quindi abbiamo evidenza dei campi sbaliati/mancanti
     if (this.bookForm.invalid) {
       this.bookForm.markAllAsTouched();
       return;
     }
 
-    // prendo valore del form
-    const formValue = this.bookForm.getRawValue();
-
-    const payload: BookPayload = {
-      id: formValue.id ?? undefined,
-      editor_id: formValue.editor_id,
-      title: formValue.title,
-      isbn: formValue.isbn,
-      synopsis: formValue.synopsis,
-      daily_price: formValue.daily_price,
-      total_quantity: formValue.total_quantity,
-      authors: formValue.authors,
-    };
-
-    this.saving = true;
-    this.error = '';
-
-    this.bookService.createOrUpdateBooks(payload).subscribe({
-      next: () => {
-        this.dialogRef.close(true);
+    this.dialog.open(ConfirmationDialog, {
+      width: '420px',
+      data: {
+        title: this.bookId ? 'Confermare modifica libro?' : 'Confermare nuovo libro?',
+        confirmLabel: 'Salva',
       },
-      error: () => {
-        this.error = 'Errore durante il salvataggio del libro';
-        this.saving = false;
-      },
+    }).afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      const formValue = this.bookForm.getRawValue();
+
+      const payload: BookPayload = {
+        id: formValue.id ?? undefined,
+        editor_id: formValue.editor_id,
+        title: formValue.title,
+        isbn: formValue.isbn,
+        synopsis: formValue.synopsis,
+        daily_price: formValue.daily_price,
+        total_quantity: formValue.total_quantity,
+        authors: formValue.authors,
+      };
+
+      this.saving = true;
+      this.error = '';
+
+      this.bookService.createOrUpdateBooks(payload).subscribe({
+        next: () => {
+          this.dialogRef.close(true);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.error = error.error.errors.isbn?.[0]
+            ?? error.error.errors.authors?.[0]
+            ?? error.error.errors.editor_id?.[0]
+            ?? error.error.errors.title?.[0];
+          this.saving = false;
+        },
+      });
     });
   }
 

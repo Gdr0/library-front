@@ -1,3 +1,182 @@
-<section>
-  <p>Nessun prestito trovato</p>
+<section class="min-w-0">
+      <div class="mb-4 flex items-center justify-between">
+        <h1 class="text-xl font-semibold">Prestiti</h1>
+
+        <button mat-flat-button type="button" (click)="createLoan()">Nuovo prestito</button>
+      </div>
+
+      @if (loading()) {
+        <div class="flex justify-center py-12">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
+
+      @if (error()) {
+        <p class="text-red-600">{{ error() }}</p>
+      }
+
+      @if (!loading() && !error()) {
+        @if (loans().length === 0) {
+          <p>Nessun prestito trovato</p>
+        } @else {
+          <table mat-table [dataSource]="loans()" class="w-full table-fixed">
+            <ng-container matColumnDef="client">
+              <th mat-header-cell *matHeaderCellDef>Cliente</th>
+              <td mat-cell *matCellDef="let loan">
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-sm font-medium text-slate-900">
+                    {{ loan.client.name }} {{ loan.client.last_name }}
+                  </span>
+                  <span class="text-xs text-slate-500">
+                    {{ loan.document_type.name }} · {{ loan.document_number }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="period">
+              <th mat-header-cell *matHeaderCellDef>Periodo</th>
+              <td mat-cell *matCellDef="let loan">
+                <div class="flex flex-col gap-1 py-2 text-sm text-slate-700">
+                  <span>Dal {{ formatDate(loan.started_at) }}</span>
+                  <span>Scade {{ formatDate(loan.expiring_at) }}</span>
+                  <span class="text-xs text-slate-500">
+                    Chiuso {{ formatDate(loan.closed_at) }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Stato</th>
+              <td mat-cell *matCellDef="let loan">
+                <div class="py-2">
+                  <span
+                    class="inline-flex rounded-full px-3 py-1 text-xs font-medium"
+                    [class.bg-emerald-50]="loan.status.status === 'closed'"
+                    [class.text-emerald-700]="loan.status.status === 'closed'"
+                    [class.ring-emerald-200]="loan.status.status === 'closed'"
+                    [class.bg-amber-50]="loan.status.status === 'closed_late'"
+                    [class.text-amber-700]="loan.status.status === 'closed_late'"
+                    [class.ring-amber-200]="loan.status.status === 'closed_late'"
+                    [class.bg-rose-50]="loan.status.status === 'overdue'"
+                    [class.text-rose-700]="loan.status.status === 'overdue'"
+                    [class.ring-rose-200]="loan.status.status === 'overdue'"
+                    [class.bg-sky-50]="loan.status.status === 'open'"
+                    [class.text-sky-700]="loan.status.status === 'open'"
+                    [class.ring-sky-200]="loan.status.status === 'open'"
+                    [class.ring-1]="true"
+                  >
+                    {{ loan.status.label }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="bookTitles">
+              <th mat-header-cell *matHeaderCellDef>Libri</th>
+              <td mat-cell *matCellDef="let loan">
+                <div class="flex flex-col gap-1 py-2">
+                  @for (bookLoan of loan.book_loans; track bookLoan.id) {
+                    <span class="text-sm text-slate-900">
+                      {{ bookLoan.book.title }}
+                      @if ((bookLoan.book.authors ?? []).length > 0) {
+                        <span class="text-slate-500">
+                          -
+                          @for (
+                            author of bookLoan.book.authors ?? [];
+                            track author.id;
+                            let last = $last
+                          ) {
+                            {{ author.name }} {{ author.last_name }}@if (!last) {
+                              ,
+                            }
+                          }
+                        </span>
+                      }
+                    </span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="books">
+              <th mat-header-cell *matHeaderCellDef>Dati libri</th>
+              <td mat-cell *matCellDef="let loan">
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-sm font-medium text-slate-900">
+                    {{ loan.loan_books_quantity }} libri prestati
+                  </span>
+                  <span class="text-sm text-slate-600">
+                    {{ loan.returned_books_quantity }} restituiti
+                  </span>
+                  <span class="text-xs text-slate-500">
+                    {{ loan.book_loans.length }} titoli nel prestito
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="sums">
+              <th mat-header-cell *matHeaderCellDef>Somme</th>
+              <td mat-cell *matCellDef="let loan">
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-sm font-medium text-slate-900">
+                    Rientri
+                    {{
+                      loan.total_at_return == null
+                        ? '-'
+                        : (loan.total_at_return | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
+                    }}
+                  </span>
+                  <span class="text-sm text-slate-600">
+                    Finale
+                    {{
+                      loan.final_price == null
+                        ? '-'
+                        : (loan.final_price | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
+                    }}
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="cursor-pointer transition-colors hover:bg-slate-50"
+          (click)="openLoanDetail(row)"
+        ></tr>
+          </table>
+
+          <mat-paginator
+            [length]="totalLoans()"
+            [pageIndex]="currentPage() - 1"
+            [pageSize]="pageSize()"
+            [hidePageSize]="true"
+            (page)="changePage($event)"
+          />
+        }
+      }
 </section>
+
+@if (selectedLoan()) {
+  <div
+    class="fixed inset-0 z-40 bg-slate-950/30"
+    aria-hidden="true"
+    (click)="closeLoanDetail()"
+  ></div>
+
+  <aside
+    class="fixed inset-y-0 right-0 z-50 w-full max-w-[min(88vw,64rem)] overflow-y-auto border-l border-slate-200 bg-white shadow-xl"
+    aria-label="Dettaglio prestito"
+  >
+    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/92 px-6 py-4 backdrop-blur">
+      <h2 class="text-base font-semibold text-slate-950">Dettaglio prestito</h2>
+      <button mat-button type="button" (click)="closeLoanDetail()">Chiudi</button>
+    </div>
+
+    <app-loan-detail-drawer [loan]="selectedLoan()" (loanUpdated)="handleLoanUpdated($event)" />
+  </aside>
+}

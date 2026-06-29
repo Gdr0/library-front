@@ -1,0 +1,191 @@
+@if (loan) {
+  <div class="loan-detail-shell flex h-full flex-col">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 class="mt-1 text-lg font-medium text-slate-950">
+            {{ loan.client.name }} {{ loan.client.last_name }}
+          </h2>
+          <p class="mt-2 text-sm text-slate-600">
+            {{ loan.document_type.name }} · {{ loan.document_number }}
+          </p>
+        </div>
+
+        <div
+          class="inline-flex rounded-full px-3 py-1.5 text-sm font-medium ring-1"
+          [class.bg-emerald-50]="loan.status.status === 'closed'"
+          [class.text-emerald-700]="loan.status.status === 'closed'"
+          [class.ring-emerald-200]="loan.status.status === 'closed'"
+          [class.bg-amber-50]="loan.status.status === 'closed_late'"
+          [class.text-amber-700]="loan.status.status === 'closed_late'"
+          [class.ring-amber-200]="loan.status.status === 'closed_late'"
+          [class.bg-rose-50]="loan.status.status === 'overdue'"
+          [class.text-rose-700]="loan.status.status === 'overdue'"
+          [class.ring-rose-200]="loan.status.status === 'overdue'"
+          [class.bg-sky-50]="loan.status.status === 'open'"
+          [class.text-sky-700]="loan.status.status === 'open'"
+          [class.ring-sky-200]="loan.status.status === 'open'"
+        >
+          {{ loan.status.label }}
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-end gap-3">
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="!canReturnLoan()"
+          (click)="openReturnAllDialog()"
+        >
+          {{ actionLoading ? 'Salvataggio...' : 'Registra rientro completo' }}
+        </button>
+      </div>
+
+      <div class="mt-6 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <p class="text-sm font-medium text-slate-400">Inizio</p>
+          <p class="mt-1 text-sm text-slate-900">{{ formatDate(loan.started_at) }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-slate-400">Scadenza</p>
+          <p class="mt-1 text-sm text-slate-900">{{ formatDate(loan.expiring_at) }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-slate-400">Chiusura</p>
+          <p class="mt-1 text-sm text-slate-900">{{ formatDate(loan.closed_at) }}</p>
+        </div>
+        <div>
+          <p class="text-mm font-medium text-slate-400">Libri</p>
+          <p class="mt-1 text-sm text-slate-900">
+            {{ loan.loan_books_quantity }} prestati · {{ loan.returned_books_quantity }} restituiti
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
+      <div class="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <h3 class="mt-1 text-lg font-medium text-slate-950">Libri</h3>
+        </div>
+        <p class="text-sm text-slate-500">{{ loan.book_loans.length }} titoli</p>
+      </div>
+
+      <div class="grid gap-4">
+        @for (bookLoan of loan.book_loans; track bookLoan.id) {
+          <article class="rounded-xl border border-slate-200 p-5">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div class="min-w-0">
+                <h4 class="text-base font-medium text-slate-950">{{ bookLoan.book.title }}</h4>
+              </div>
+
+              <div class="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:min-w-[520px] lg:grid-cols-4">
+                <div>
+                  <p class="text-sm font-medium text-slate-400">Prestati</p>
+                  <p class="mt-1 text-sm text-slate-900">{{ bookLoan.quantity }}</p>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-slate-400">Restituiti</p>
+                  <p class="mt-1 text-sm text-slate-900">{{ bookLoan.returned_books_quantity }}</p>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-slate-400">Costo giornaliero</p>
+                  <p class="mt-1 text-sm text-slate-900">
+                    {{ bookLoan.unit_price | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT' }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-slate-400">Totale rientri</p>
+                  <p class="mt-1 text-sm text-slate-900">
+                    {{
+                      bookLoan.total_at_return == null
+                        ? '-'
+                        : (bookLoan.total_at_return | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
+                    }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 flex justify-end border-t border-slate-200 pt-4">
+              <button
+                mat-button
+                type="button"
+                [disabled]="!canReturnMore(bookLoan)"
+                (click)="openReturnBookDialog(bookLoan)"
+              >
+                Registra rientro
+              </button>
+            </div>
+
+            @if (bookLoan.returns.length > 0) {
+              <div class="mt-5 border-t border-slate-200 pt-4">
+                <p class="mb-3 text-sm font-medium text-slate-700">Rientri registrati</p>
+
+                <div class="grid gap-3">
+                  @for (returnedBook of bookLoan.returns; track returnedBook.id) {
+                    <div class="grid gap-3 rounded-lg bg-slate-50 px-4 py-3 sm:grid-cols-3">
+                      <div>
+                        <p class="text-xs font-medium text-slate-400">Quantita</p>
+                        <p class="mt-1 text-sm text-slate-900">{{ returnedBook.returned_quantity }}</p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-slate-400">Data</p>
+                        <p class="mt-1 text-sm text-slate-900">{{ formatDate(returnedBook.returned_at) }}</p>
+                      </div>
+                      <div>
+                        <p class="text-xs font-medium text-slate-400">Totale</p>
+                        <p class="mt-1 text-sm text-slate-900">
+                          {{
+                            returnedBook.total_at_return == null
+                              ? '-'
+                              : (returnedBook.total_at_return
+                                | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
+                          }}
+                        </p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="mt-5 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                Nessun rientro registrato per questo titolo.
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
+      @if (actionError) {
+        <p class="mb-4 text-sm text-red-600">{{ actionError }}</p>
+      }
+
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <p class="text-sm text-slate-500">Totale finale</p>
+          <p class="mt-1 text-2xl font-semibold text-slate-950">
+            {{
+              loan.final_price == null
+                ? '-'
+                : (loan.final_price | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
+            }}
+          </p>
+        </div>
+
+        <div>
+          <p class="text-sm text-slate-500">Rientri accumulati</p>
+          <p class="mt-1 text-2xl font-semibold text-slate-950">
+            {{
+              loan.total_at_return == null
+                ? '-'
+                : (loan.total_at_return | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
+            }}
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+}

@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  @if (data.description) {
+    <p class="text-sm text-slate-600">{{ data.description }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" [mat-dialog-close]="false">Annulla</button>
+  <button mat-flat-button type="button" (click)="confirm()">
+    {{ data.confirmLabel ?? 'Conferma' }}
+  </button>
+</mat-dialog-actions>

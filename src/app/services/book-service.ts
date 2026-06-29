@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Observable } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 export interface Author {
@@ -22,6 +22,7 @@ export interface Book {
   synopsis: string;
   daily_price: number;
   total_quantity: number;
+  occupied_quantity: number;
   created_at: string;
   updated_at: string;
   authors: Author[];
@@ -43,7 +44,7 @@ export interface BooksResponse {
 
 export type BookPayload = Omit<
   Book,
-  'id' | 'created_at' | 'updated_at' | 'authors' | 'editor'
+  'id' | 'created_at' | 'updated_at' | 'authors' | 'editor' | 'occupied_quantity'
 > & {
   id?: number;
   authors: number[];
@@ -65,6 +66,25 @@ export class BookService {
     const params = new HttpParams().set('page', page);
 
     return this._http.get<BooksResponse>(`${this.apiUrl}/bookIndex`, { params });
+  }
+
+  getAllBooks(): Observable<Book[]> {
+    return this.getBooks(1).pipe(
+      switchMap((response) => {
+        if (response.books.last_page <= 1) {
+          return of([response]);
+        }
+
+        const requests: Observable<BooksResponse>[] = [];
+
+        for (let page = 2; page <= response.books.last_page; page++) {
+          requests.push(this.getBooks(page));
+        }
+
+        return forkJoin([of(response), ...requests]);
+      }),
+      map((responses) => responses.flatMap((response) => response.books.data)),
+    );
   }
 
   getBookById(id: number): Observable<{ book: Book }> {

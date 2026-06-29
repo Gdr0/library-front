@@ -5,6 +5,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { Book, BookService } from '../../services/book-service';
+import { AuthorDialog } from './author-dialog/author-dialog';
 import { BookDialog } from './book-dialog/book-dialog';
 
 @Component({
@@ -32,7 +33,7 @@ export class Books implements OnInit {
   loading = signal(false);
   error = signal('');
 
-  displayedColumns = ['title','authors','isbn','editor','quantity','daily_price'];
+  displayedColumns = ['title','authors','isbn','editor','quantity','occupied','daily_price'];
 
   ngOnInit(): void {
     this.loadBooks();
@@ -44,7 +45,6 @@ export class Books implements OnInit {
 
     this.bookService.getBooks(page).subscribe({
       next: (response) => {
-        // console.log(response.books.data);
         this.books.set(response.books.data);
         this.totalBooks.set(response.books.total);
         this.currentPage.set(response.books.current_page);
@@ -64,6 +64,12 @@ export class Books implements OnInit {
 
   createBook(): void {
     this.openDialog(null);
+  }
+
+  createAuthor(): void {
+    this.dialog.open(AuthorDialog, {
+      width: '420px',
+    });
   }
 
   editBook(book: Book): void {

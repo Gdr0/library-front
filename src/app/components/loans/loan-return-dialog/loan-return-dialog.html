@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>
+  {{ data.mode === 'all' ? 'Restituisci prestito' : 'Registra rientro' }}
+</h2>
+
+<form [formGroup]="returnForm" (ngSubmit)="confirm()">
+  <mat-dialog-content>
+    <div class="grid gap-4">
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Data rientro</mat-label>
+        <input matInput type="date" formControlName="returned_at" />
+      </mat-form-field>
+
+      <div class="grid gap-3">
+        @for (book of data.books; track book.book_id; let i = $index) {
+          <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div class="min-w-0">
+                <div class="text-sm font-medium text-slate-900">{{ book.title }}</div>
+                <div class="mt-1 text-xs text-slate-500">
+                  Disponibili da restituire: {{ book.remaining_quantity }}
+                </div>
+                <div class="mt-1 text-xs text-slate-500">
+                  Costo giornaliero: {{ book.daily_price | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT' }}
+                </div>
+              </div>
+
+              @if (book.remaining_quantity > 1) {
+                <mat-form-field appearance="fill" class="w-full sm:max-w-28">
+                  <mat-label>Qta</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    min="1"
+                    [max]="book.remaining_quantity"
+                    [formControl]="books.at(i).controls.returned_quantity"
+                  />
+                </mat-form-field>
+              } @else {
+                <div class="rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-700">
+                  Qta 1
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [mat-dialog-close]="undefined">Annulla</button>
+    <button mat-flat-button type="submit" [disabled]="returnForm.invalid">Conferma</button>
+  </mat-dialog-actions>
+</form>

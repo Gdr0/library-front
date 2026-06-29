@@ -1,0 +1,167 @@
+<h2 mat-dialog-title>Nuovo prestito</h2>
+
+<form [formGroup]="loanForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    @if (loading) {
+      <div class="flex justify-center py-12">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="grid gap-3">
+        <mat-form-field appearance="fill" class="w-full">
+          <!-- <mat-label>Cliente esistente</mat-label> -->
+          <input
+            matInput
+            [formControl]="clientSearch"
+            [matAutocomplete]="clientAutocomplete"
+            (input)="searchClients($event)"
+            placeholder="Cerca cliente"
+          />
+
+          <mat-autocomplete
+            #clientAutocomplete="matAutocomplete"
+            [displayWith]="displayClient"
+            (optionSelected)="selectClient($event)"
+          >
+            @for (client of filteredClients; track client.id) {
+              <mat-option [value]="client">
+                {{ client.name }} {{ client.last_name }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="client_name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Cognome</mat-label>
+            <input matInput formControlName="client_last_name" />
+          </mat-form-field>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Telefono</mat-label>
+            <input matInput formControlName="client_phone_number" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="client_email" />
+          </mat-form-field>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Tipo documento</mat-label>
+            <mat-select formControlName="document_type_id">
+              @for (documentType of documentTypes; track documentType.id) {
+                <mat-option [value]="documentType.id">
+                  {{ documentType.name }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Numero documento</mat-label>
+            <input matInput formControlName="document_number" />
+          </mat-form-field>
+        </div>
+
+        <div class="grid gap-3">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Data scadenza</mat-label>
+            <input
+              matInput
+              type="date"
+              formControlName="expiring_at"
+              [min]="minExpiringDate()"
+            />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Aggiungi libro</mat-label>
+          <input
+            matInput
+            [formControl]="bookSearch"
+            [matAutocomplete]="bookAutocomplete"
+            (input)="searchBooks($event)"
+            placeholder="Cerca titolo"
+          />
+
+          <mat-autocomplete
+            #bookAutocomplete="matAutocomplete"
+            (optionSelected)="selectBook($event)"
+          >
+            @for (book of filteredBooks; track book.id) {
+              <mat-option [value]="book">
+                {{ book.title }}
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        @if (selectedBooks.length > 0) {
+          <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 shadow-[0_4px_18px_rgba(15,23,42,0.05)]">
+            @for (book of selectedBooks; track book.id; let i = $index) {
+              <div class="grid grid-cols-[minmax(0,1fr)_7rem_2.5rem] items-center gap-3 border-b border-slate-200/80 px-4 py-3 last:border-b-0">
+                <div class="min-w-0">
+                  <div class="truncate text-sm font-medium tracking-[-0.02em] text-slate-900">
+                    {{ book.title }}
+                  </div>
+                  <div class="mt-0.5 text-xs font-medium text-slate-500">
+                    {{ book.daily_price }} / giorno
+                  </div>
+                </div>
+
+                <mat-form-field appearance="fill" class="w-full scale-[0.88] origin-right">
+                  <mat-label>Qta</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    [formControl]="books.at(i).controls.quantity"
+                    min="1"
+                  />
+                </mat-form-field>
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="h-9! w-9! shrink-0 text-slate-400!"
+                  aria-label="Rimuovi libro"
+                  (click)="removeBook(book)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        @if (error) {
+          <p class="text-red-600">{{ error }}</p>
+        }
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" [mat-dialog-close]="false">
+      Annulla
+    </button>
+
+    <button
+      mat-flat-button
+      type="submit"
+      [disabled]="loanForm.invalid || loading || saving || books.length === 0"
+    >
+      {{ saving ? 'Salvataggio...' : 'Salva' }}
+    </button>
+  </mat-dialog-actions>
+</form>

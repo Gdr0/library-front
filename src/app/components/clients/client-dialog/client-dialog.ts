@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -9,6 +10,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
@@ -19,6 +21,7 @@ import {
   ClientPayload,
   ClientService,
 } from '../../../services/client-service';
+import { ConfirmationDialog } from '../../../shared/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-client-dialog',
@@ -49,6 +52,7 @@ export class ClientDialog implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private clientService: ClientService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<ClientDialog>,
     @Inject(MAT_DIALOG_DATA) public clientId: number | null,
   ) {
@@ -86,27 +90,42 @@ export class ClientDialog implements OnInit {
       return;
     }
 
-    const formValue = this.clientForm.getRawValue();
-
-    const payload: ClientPayload = {
-      id: formValue.id ?? undefined,
-      name: formValue.name,
-      last_name: formValue.last_name,
-      phone_number: formValue.phone_number,
-      email: formValue.email,
-    };
-
-    this.saving = true;
-    this.error = '';
-
-    this.clientService.createOrUpdateClient(payload).subscribe({
-      next: () => {
-        this.dialogRef.close(true);
+    this.dialog.open(ConfirmationDialog, {
+      width: '420px',
+      data: {
+        title: this.clientId ? 'Confermare modifica cliente?' : 'Confermare nuovo cliente?',
+        confirmLabel: 'Salva',
       },
-      error: () => {
-        this.error = 'Errore durante il salvataggio del cliente';
-        this.saving = false;
-      },
+    }).afterClosed().subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      const formValue = this.clientForm.getRawValue();
+
+      const payload: ClientPayload = {
+        id: formValue.id ?? undefined,
+        name: formValue.name,
+        last_name: formValue.last_name,
+        phone_number: formValue.phone_number,
+        email: formValue.email,
+      };
+
+      this.saving = true;
+      this.error = '';
+
+      this.clientService.createOrUpdateClient(payload).subscribe({
+        next: () => {
+          this.dialogRef.close(true);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.error = error.error.errors.phone_number?.[0]
+            ?? error.error.errors.email?.[0]
+            ?? error.error.errors.name?.[0]
+            ?? error.error.errors.last_name?.[0];
+          this.saving = false;
+        },
+      });
     });
   }
 }
