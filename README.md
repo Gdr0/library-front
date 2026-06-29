@@ -48,4 +48,6 @@ Nel dettaglio del prestito vengono mostrati lo stato del prestito, i libri coinv
 
 Se il prestito è in ritardo, vengono considerate anche le eventuali more. Questi valori non sono letti direttamente dal database come campi statici, ma vengono calcolati dal backend e restituiti tramite API.
 
+La mora inizia a maturare dal momento in cui il prestito supera la data di scadenza. Da quel momento, per ogni libro non ancora restituito, viene aggiunto ogni giorno un importo pari al doppio del suo costo giornaliero.
+
 Nel form di creazione di un prestito è inoltre possibile associare un cliente già esistente oppure crearne uno nuovo direttamente durante la compilazione.
