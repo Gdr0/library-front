@@ -31,7 +31,6 @@ export interface LoanReturnDialogResult {
     book_id: number;
     returned_quantity: number;
   }>;
-  returned_at: string;
 }
 
 type ReturnBookForm = FormGroup<{
@@ -55,7 +54,6 @@ type ReturnBookForm = FormGroup<{
 export class LoanReturnDialog {
   readonly returnForm: FormGroup<{
     books: FormArray<ReturnBookForm>;
-    returned_at: FormControl<string>;
   }>;
 
   constructor(
@@ -64,7 +62,6 @@ export class LoanReturnDialog {
     @Inject(MAT_DIALOG_DATA) readonly data: LoanReturnDialogData,
   ) {
     this.returnForm = this.formBuilder.group({
-      returned_at: this.formBuilder.nonNullable.control(this.todayValue(), Validators.required),
       books: this.formBuilder.array(
         data.books.map((book) =>
           this.formBuilder.group({
@@ -92,20 +89,10 @@ export class LoanReturnDialog {
 
     const value = this.returnForm.getRawValue();
     this.dialogRef.close({
-      returned_at: value.returned_at,
       books: value.books.map((book) => ({
         book_id: book.book_id,
         returned_quantity: book.returned_quantity,
       })),
     });
-  }
-
-  private todayValue(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = `${today.getMonth() + 1}`.padStart(2, '0');
-    const day = `${today.getDate()}`.padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
   }
 }

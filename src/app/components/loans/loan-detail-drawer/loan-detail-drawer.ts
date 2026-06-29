@@ -109,7 +109,7 @@ export class LoanDetailDrawer {
     this.dialog.open(ConfirmationDialog, {
       width: '420px',
       data: {
-        title: 'Confermare registrazione rientro?',
+        title: 'Confermare registrazione restituzione?',
         confirmLabel: 'Conferma',
       },
     }).afterClosed().subscribe((confirmed) => {
@@ -122,7 +122,6 @@ export class LoanDetailDrawer {
 
       this.loanService.returnBookOrLoan({
         id_loan: this.loan.id,
-        returned_at: result.returned_at,
         books: result.books,
       }).subscribe({
         next: (response) => {

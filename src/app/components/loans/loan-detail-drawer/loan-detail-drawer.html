@@ -37,8 +37,15 @@
           [disabled]="!canReturnLoan()"
           (click)="openReturnAllDialog()"
         >
-          {{ actionLoading ? 'Salvataggio...' : 'Registra rientro completo' }}
+          {{ actionLoading ? 'Salvataggio...' : 'Registra restituzione completa' }}
         </button>
+      </div>
+
+      <div class="mt-6 rounded-xl bg-slate-50 px-4 py-4">
+        <p class="text-sm font-medium text-slate-500">Totale dovuto a oggi</p>
+        <p class="mt-1 text-2xl font-semibold text-slate-950">
+          {{ loan.estimated_total_due_today | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT' }}
+        </p>
       </div>
 
       <div class="mt-6 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -95,7 +102,7 @@
                   </p>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-slate-400">Totale rientri</p>
+                  <p class="text-sm font-medium text-slate-400">Totale restituzioni</p>
                   <p class="mt-1 text-sm text-slate-900">
                     {{
                       bookLoan.total_at_return == null
@@ -114,13 +121,13 @@
                 [disabled]="!canReturnMore(bookLoan)"
                 (click)="openReturnBookDialog(bookLoan)"
               >
-                Registra rientro
+                Registra restituzione
               </button>
             </div>
 
             @if (bookLoan.returns.length > 0) {
               <div class="mt-5 border-t border-slate-200 pt-4">
-                <p class="mb-3 text-sm font-medium text-slate-700">Rientri registrati</p>
+                <p class="mb-3 text-sm font-medium text-slate-700">Restituzioni registrate</p>
 
                 <div class="grid gap-3">
                   @for (returnedBook of bookLoan.returns; track returnedBook.id) {
@@ -150,7 +157,7 @@
               </div>
             } @else {
               <div class="mt-5 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">
-                Nessun rientro registrato per questo titolo.
+                Nessuna restituzione registrata per questo titolo.
               </div>
             }
           </article>
@@ -163,28 +170,28 @@
         <p class="mb-4 text-sm text-red-600">{{ actionError }}</p>
       }
 
-      <div class="grid gap-6 sm:grid-cols-2">
+      <div class="grid gap-6 sm:grid-cols-3">
         <div>
-          <p class="text-sm text-slate-500">Totale finale</p>
+          <p class="text-sm text-slate-500">Incassato</p>
           <p class="mt-1 text-2xl font-semibold text-slate-950">
-            {{
-              loan.final_price == null
-                ? '-'
-                : (loan.final_price | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
-            }}
+            {{ loan.collected_total | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT' }}
           </p>
         </div>
 
         <div>
-          <p class="text-sm text-slate-500">Rientri accumulati</p>
+          <p class="text-sm text-slate-500">Totale dovuto di base</p>
           <p class="mt-1 text-2xl font-semibold text-slate-950">
-            {{
-              loan.total_at_return == null
-                ? '-'
-                : (loan.total_at_return | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT')
-            }}
+            {{ loan.base_due_today | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT' }}
           </p>
         </div>
+
+        <div>
+          <p class="text-sm text-slate-500">{{ loan.closed_at ? 'More' : 'More maturate' }}</p>
+          <p class="mt-1 text-2xl font-semibold text-slate-950">
+            {{ loan.fine_due_today | currency: 'EUR' : 'symbol' : '1.2-2' : 'it-IT' }}
+          </p>
+        </div>
+
       </div>
     </section>
   </div>

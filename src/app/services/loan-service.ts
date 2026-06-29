@@ -61,10 +61,17 @@ export interface Loan {
   loan_books_quantity: number;
   returned_books_quantity: number;
   total_at_return: number;
+  collected_total: number;
+  base_due_today: number;
+  fine_due_today: number;
+  estimated_total_due_today: number;
   client: Client;
   status: LoanStatus;
   document_type: DocumentType;
   book_loans: BookLoan[];
+  fine?: {
+    amount: number;
+  } | null;
 }
 
 export interface PaginatedLoans {
@@ -109,7 +116,6 @@ export interface LoanReturnBookPayload {
 
 export interface LoanReturnPayload {
   id_loan: number;
-  returned_at: string;
   books: LoanReturnBookPayload[];
 }
 

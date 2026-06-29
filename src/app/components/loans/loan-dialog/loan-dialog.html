@@ -101,7 +101,7 @@
           >
             @for (book of filteredBooks; track book.id) {
               <mat-option [value]="book">
-                {{ book.title }}
+                {{ book.title }} - disponibili: {{ book.total_quantity - book.occupied_quantity }}
               </mat-option>
             }
           </mat-autocomplete>
@@ -116,7 +116,7 @@
                     {{ book.title }}
                   </div>
                   <div class="mt-0.5 text-xs font-medium text-slate-500">
-                    {{ book.daily_price }} / giorno
+                    {{ book.daily_price }} / giorno · disponibili: {{ book.total_quantity - book.occupied_quantity }}
                   </div>
                 </div>
 

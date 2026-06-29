@@ -5,11 +5,6 @@
 <form [formGroup]="returnForm" (ngSubmit)="confirm()">
   <mat-dialog-content>
     <div class="grid gap-4">
-      <mat-form-field appearance="fill" class="w-full">
-        <mat-label>Data rientro</mat-label>
-        <input matInput type="date" formControlName="returned_at" />
-      </mat-form-field>
-
       <div class="grid gap-3">
         @for (book of data.books; track book.book_id; let i = $index) {
           <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
