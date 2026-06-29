@@ -88,6 +88,17 @@
         </mat-form-field>
 
         <mat-form-field appearance="fill">
+          <mat-label>Prezzo giornaliero</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="daily_price"
+            step="0.01"
+            min="0"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
           <mat-label>Sinossi</mat-label>
           <textarea
             matInput

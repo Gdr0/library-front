@@ -32,7 +32,7 @@ export class Books implements OnInit {
   loading = signal(false);
   error = signal('');
 
-  displayedColumns = ['title','authors','isbn','editor','quantity',];
+  displayedColumns = ['title','authors','isbn','editor','quantity','daily_price'];
 
   ngOnInit(): void {
     this.loadBooks();
@@ -44,7 +44,7 @@ export class Books implements OnInit {
 
     this.bookService.getBooks(page).subscribe({
       next: (response) => {
-        console.log(response);
+        // console.log(response.books.data);
         this.books.set(response.books.data);
         this.totalBooks.set(response.books.total);
         this.currentPage.set(response.books.current_page);

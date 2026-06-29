@@ -53,6 +53,7 @@ export class BookDialog implements OnInit {
     title: FormControl<string>;
     isbn: FormControl<string>;
     synopsis: FormControl<string>;
+    daily_price: FormControl<number>;
     total_quantity: FormControl<number>;
     authorSearch: FormControl<string>;
     authors: FormArray<FormControl<number>>;
@@ -80,6 +81,7 @@ export class BookDialog implements OnInit {
       title: this.formBuilder.nonNullable.control('', Validators.required),
       isbn: this.formBuilder.nonNullable.control('', Validators.required),
       synopsis: this.formBuilder.nonNullable.control('', Validators.required),
+      daily_price: this.formBuilder.nonNullable.control(0.5,[Validators.required, Validators.min(0)],),
       total_quantity: this.formBuilder.nonNullable.control(0,[Validators.required, Validators.min(0)],),
       authorSearch: this.formBuilder.nonNullable.control(''),
       authors: this.formBuilder.array<FormControl<number>>([],Validators.required,),
@@ -109,6 +111,7 @@ export class BookDialog implements OnInit {
           title: book.title,
           isbn: book.isbn,
           synopsis: book.synopsis,
+          daily_price: book.daily_price,
           total_quantity: book.total_quantity,
         });
 
@@ -147,6 +150,7 @@ export class BookDialog implements OnInit {
       title: formValue.title,
       isbn: formValue.isbn,
       synopsis: formValue.synopsis,
+      daily_price: formValue.daily_price,
       total_quantity: formValue.total_quantity,
       authors: formValue.authors,
     };

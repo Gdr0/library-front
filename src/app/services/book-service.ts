@@ -20,6 +20,7 @@ export interface Book {
   title: string;
   isbn: string;
   synopsis: string;
+  daily_price: number;
   total_quantity: number;
   created_at: string;
   updated_at: string;
