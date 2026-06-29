@@ -54,18 +54,16 @@ export type BookPayload = Omit<
   providedIn: 'root',
 })
 export class BookService {
-  
   constructor (
     private _http: HttpClient,
   ){}
-  
-  private apiUrl = `${environment.apiUrl}/books`
-  
+
+  private apiUrl = `${environment.apiUrl}/books`;
 
   getBooks(page: number = 1): Observable<BooksResponse> {
     const params = new HttpParams().set('page', page);
 
-    return this._http.get<BooksResponse>(`${this.apiUrl}/bookIndex`, { params });
+    return this._http.get<BooksResponse>(this.apiUrl, { params });
   }
 
   getAllBooks(): Observable<Book[]> {
@@ -88,11 +86,11 @@ export class BookService {
   }
 
   getBookById(id: number): Observable<{ book: Book }> {
-    return this._http.get<{ book: Book }>(`${this.apiUrl}/getBookById/${id}`);
+    return this._http.get<{ book: Book }>(`${this.apiUrl}/${id}`);
   }
 
-  createOrUpdateBooks(payload:BookPayload):Observable<{ book: Book; message: string }>{
-    return this._http.post<{book: Book; message: string}>(`${this.apiUrl}/createOrUpdateBooks`, payload);
+  saveBook(payload: BookPayload): Observable<{ book: Book; message: string }> {
+    return this._http.post<{ book: Book; message: string }>(this.apiUrl, payload);
   }
 
 }

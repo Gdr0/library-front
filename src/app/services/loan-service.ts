@@ -126,32 +126,24 @@ export class LoanService {
   getLoans(page: number = 1): Observable<LoansResponse> {
     const params = new HttpParams().set('page', page);
 
-    return this._http.get<LoansResponse>(
-      `${this.apiUrl}/loanIndex`,
-      { params },
-    );
+    return this._http.get<LoansResponse>(this.apiUrl, { params });
   }
 
   getLoanDetail(id: number): Observable<LoanDetailResponse> {
-    return this._http.get<LoanDetailResponse>(
-      `${this.apiUrl}/loanDetail/${id}`,
-    );
+    return this._http.get<LoanDetailResponse>(`${this.apiUrl}/${id}`);
   }
 
   createLoan(
     payload: LoanCreatePayload,
   ): Observable<{ loan: Loan; message: string }> {
-    return this._http.post<{ loan: Loan; message: string }>(
-      `${this.apiUrl}/CreateLoan`,
-      payload,
-    );
+    return this._http.post<{ loan: Loan; message: string }>(this.apiUrl, payload);
   }
 
   returnBookOrLoan(
     payload: LoanReturnPayload,
   ): Observable<{ loan: Loan; message: string }> {
     return this._http.patch<{ loan: Loan; message: string }>(
-      `${this.apiUrl}/returnBookOrLoan`,
+      `${this.apiUrl}/return`,
       payload,
     );
   }

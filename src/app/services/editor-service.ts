@@ -15,9 +15,6 @@ export class EditorService {
   getEditors(search: string = ''): Observable<{ editors: Editor[] }> {
     const params = new HttpParams().set('search', search);
 
-    return this._http.get<{ editors: Editor[] }>(
-      `${this.apiUrl}/getEditors`,
-      { params },
-    );
+    return this._http.get<{ editors: Editor[] }>(this.apiUrl, { params });
   }
 }

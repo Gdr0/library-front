@@ -20,16 +20,10 @@ export class AuthorService {
   getAuthors(search: string = ''): Observable<{ authors: Author[] }> {
     const params = new HttpParams().set('search', search);
 
-    return this._http.get<{ authors: Author[] }>(
-      `${this.apiUrl}/getAuthors`,
-      { params },
-    );
+    return this._http.get<{ authors: Author[] }>(this.apiUrl, { params });
   }
 
   createAuthor(payload: AuthorPayload): Observable<{ author: Author; message: string }> {
-    return this._http.post<{ author: Author; message: string }>(
-      `${this.apiUrl}/createAuthor`,
-      payload,
-    );
+    return this._http.post<{ author: Author; message: string }>(this.apiUrl, payload);
   }
 }

@@ -36,7 +36,7 @@ export type ClientPayload = Omit<
   providedIn: 'root',
 })
 export class ClientService {
-  private apiUrl = `${environment.apiUrl}/client`;
+  private apiUrl = `${environment.apiUrl}/clients`;
 
   constructor(
     private _http: HttpClient,
@@ -46,7 +46,7 @@ export class ClientService {
     const params = new HttpParams().set('page', page);
 
     return this._http.get<ClientsResponse>(
-      `${this.apiUrl}/clientIndex`,
+      this.apiUrl,
       { params },
     );
   }
@@ -72,16 +72,13 @@ export class ClientService {
 
   getClientById(id: number): Observable<{ client: Client }> {
     return this._http.get<{ client: Client }>(
-      `${this.apiUrl}/getClientById/${id}`,
+      `${this.apiUrl}/${id}`,
     );
   }
 
   createOrUpdateClient(
     payload: ClientPayload,
   ): Observable<{ client: Client; message: string }> {
-    return this._http.post<{ client: Client; message: string }>(
-      `${this.apiUrl}/CreateOrUpdateClient`,
-      payload,
-    );
+    return this._http.post<{ client: Client; message: string }>(this.apiUrl, payload);
   }
 }

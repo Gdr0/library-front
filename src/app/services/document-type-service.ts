@@ -15,8 +15,6 @@ export class DocumentTypeService {
   ) {}
 
   getDocumentTypes(): Observable<{ documentTypes: DocumentType[] }> {
-    return this._http.get<{ documentTypes: DocumentType[] }>(
-      `${this.apiUrl}/getDocumentTypes`,
-    );
+    return this._http.get<{ documentTypes: DocumentType[] }>(this.apiUrl);
   }
 }

@@ -35,9 +35,11 @@
         <ng-container matColumnDef="authors">
           <th mat-header-cell *matHeaderCellDef>Autori</th>
           <td mat-cell *matCellDef="let book">
-            @for (author of book.authors; track author.id) {
-              <span>{{author.name}} {{author.last_name}}</span> <br>
-            }
+            <div class="flex flex-col gap-1 py-2">
+              @for (author of book.authors; track author.id) {
+                <span>{{ author.name }} {{ author.last_name }}</span>
+              }
+            </div>
           </td>
         </ng-container>
 
@@ -58,28 +60,28 @@
         <ng-container matColumnDef="editor">
           <th mat-header-cell *matHeaderCellDef>Editore</th>
           <td mat-cell *matCellDef="let book">
-            {{ book.editor.name }}
+            <div class="py-2">{{ book.editor.name }}</div>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="quantity">
-          <th mat-header-cell *matHeaderCellDef>Quantità</th>
+          <th mat-header-cell *matHeaderCellDef>Copie</th>
           <td mat-cell *matCellDef="let book">
-            {{ book.total_quantity }}
+            <div class="py-2">{{ book.total_quantity }}</div>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="occupied">
           <th mat-header-cell *matHeaderCellDef>Impegnati</th>
           <td mat-cell *matCellDef="let book">
-            {{ book.occupied_quantity }}
+            <div class="py-2">{{ book.occupied_quantity }}</div>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="daily_price">
-          <th mat-header-cell *matHeaderCellDef>prezzo giornaliero</th>
+          <th mat-header-cell *matHeaderCellDef>Prezzo giornaliero</th>
           <td mat-cell *matCellDef="let book">
-            {{ book.daily_price }} €
+            <div class="py-2">{{ book.daily_price }} €</div>
           </td>
         </ng-container>
 

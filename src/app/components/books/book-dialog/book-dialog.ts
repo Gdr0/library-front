@@ -171,7 +171,7 @@ export class BookDialog implements OnInit {
       this.saving = true;
       this.error = '';
 
-      this.bookService.createOrUpdateBooks(payload).subscribe({
+      this.bookService.saveBook(payload).subscribe({
         next: () => {
           this.dialogRef.close(true);
         },
