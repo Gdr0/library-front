@@ -14,6 +14,11 @@ export interface Editor {
   name: string;
 }
 
+export interface Genre {
+  id: number;
+  label: string;
+}
+
 export interface Book {
   id: number;
   editor_id: number;
@@ -27,6 +32,7 @@ export interface Book {
   updated_at: string;
   authors: Author[];
   editor: Editor;
+  genres: Genre[];
 }
 
 
@@ -42,12 +48,18 @@ export interface BooksResponse {
   books: PaginatedBooks;
 }
 
+export interface BookFilters {
+  search?: string;
+  genreId?: number | null;
+}
+
 export type BookPayload = Omit<
   Book,
-  'id' | 'created_at' | 'updated_at' | 'authors' | 'editor' | 'occupied_quantity'
+  'id' | 'created_at' | 'updated_at' | 'authors' | 'editor' | 'genres' | 'occupied_quantity'
 > & {
   id?: number;
   authors: number[];
+  genres: number[];
 };
 
 @Injectable({
@@ -60,8 +72,16 @@ export class BookService {
 
   private apiUrl = `${environment.apiUrl}/books`;
 
-  getBooks(page: number = 1): Observable<BooksResponse> {
-    const params = new HttpParams().set('page', page);
+  getBooks(page: number = 1, filters?: BookFilters): Observable<BooksResponse> {
+    let params = new HttpParams().set('page', page);
+
+    if (filters?.search?.trim()) {
+      params = params.set('search', filters.search.trim());
+    }
+
+    if (filters?.genreId) {
+      params = params.set('genre_id', filters.genreId);
+    }
 
     return this._http.get<BooksResponse>(this.apiUrl, { params });
   }

@@ -14,6 +14,35 @@
     </div>
   </div>
 
+  <div class="mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_260px_auto] md:items-start">
+    <mat-form-field appearance="fill">
+      <mat-label>Cerca per titolo o autore</mat-label>
+      <input
+        matInput
+        [formControl]="searchControl"
+        placeholder=""
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Filtra per genere</mat-label>
+      <mat-select [formControl]="genreControl">
+        <mat-option [value]="null">Tutti i generi</mat-option>
+        @for (genre of genres(); track genre.id) {
+          <mat-option [value]="genre.id">
+            {{ genre.label }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="flex items-center md:pt-1">
+      <button mat-button type="button" (click)="clearFilters()">
+        Azzera filtri
+      </button>
+    </div>
+  </div>
+
   @if (loading()) {
     <div class="flex justify-center py-12">
       <mat-spinner diameter="40"></mat-spinner>
@@ -54,6 +83,21 @@
           <th mat-header-cell *matHeaderCellDef>ISBN</th>
           <td mat-cell *matCellDef="let book">
             {{ book.isbn }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="genres">
+          <th mat-header-cell *matHeaderCellDef>Generi</th>
+          <td mat-cell *matCellDef="let book">
+            <div class="flex flex-col gap-1 py-2">
+              @if (book.genres.length > 0) {
+                @for (genre of book.genres; track genre.id) {
+                  <span>{{ genre.label }}</span>
+                }
+              } @else {
+                <span class="text-slate-400">-</span>
+              }
+            </div>
           </td>
         </ng-container>
 

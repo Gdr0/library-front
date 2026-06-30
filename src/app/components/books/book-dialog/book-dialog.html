@@ -79,6 +79,17 @@
         </mat-chip-set>
 
         <mat-form-field appearance="fill">
+          <mat-label>Generi</mat-label>
+          <mat-select formControlName="genres" multiple>
+            @for (genre of genreOptions; track genre.id) {
+              <mat-option [value]="genre.id">
+                {{ genre.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
           <mat-label>Quantità</mat-label>
           <input
             matInput

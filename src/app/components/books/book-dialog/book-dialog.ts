@@ -23,14 +23,17 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { AuthorService } from '../../../services/author-service';
 import {
   Author,
   BookPayload,
   BookService,
   Editor,
+  Genre,
 } from '../../../services/book-service';
 import { EditorService } from '../../../services/editor-service';
+import { GenreService } from '../../../services/genre-service';
 import { ConfirmationDialog } from '../../../shared/confirmation-dialog/confirmation-dialog';
 
 @Component({
@@ -44,6 +47,7 @@ import { ConfirmationDialog } from '../../../shared/confirmation-dialog/confirma
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
   ],
   templateUrl: './book-dialog.html',
   styleUrl: './book-dialog.scss',
@@ -60,6 +64,7 @@ export class BookDialog implements OnInit {
     total_quantity: FormControl<number>;
     authorSearch: FormControl<string>;
     authors: FormArray<FormControl<number>>;
+    genres: FormControl<number[]>;
   }>;
 
   loading = false;
@@ -68,12 +73,14 @@ export class BookDialog implements OnInit {
   selectedAuthors: Author[] = [];
   authorOptions: Author[] = [];
   editorOptions: Editor[] = [];
+  genreOptions: Genre[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private bookService: BookService,
     private authorService: AuthorService,
     private editorService: EditorService,
+    private genreService: GenreService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<BookDialog>,
     @Inject(MAT_DIALOG_DATA) public bookId: number | null,
@@ -89,6 +96,7 @@ export class BookDialog implements OnInit {
       total_quantity: this.formBuilder.nonNullable.control(0,[Validators.required, Validators.min(0)],),
       authorSearch: this.formBuilder.nonNullable.control(''),
       authors: this.formBuilder.array<FormControl<number>>([],Validators.required,),
+      genres: this.formBuilder.nonNullable.control<number[]>([], Validators.required),
     });
   }
 
@@ -97,6 +105,8 @@ export class BookDialog implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadGenres();
+
     if (this.bookId === null) {
       return;
     }
@@ -117,6 +127,7 @@ export class BookDialog implements OnInit {
           synopsis: book.synopsis,
           daily_price: book.daily_price,
           total_quantity: book.total_quantity,
+          genres: book.genres.map((genre) => genre.id),
         });
 
         // salviamo gli autori selezionati []
@@ -166,6 +177,7 @@ export class BookDialog implements OnInit {
         daily_price: formValue.daily_price,
         total_quantity: formValue.total_quantity,
         authors: formValue.authors,
+        genres: formValue.genres,
       };
 
       this.saving = true;
@@ -178,6 +190,7 @@ export class BookDialog implements OnInit {
         error: (error: HttpErrorResponse) => {
           this.error = error.error.errors.isbn?.[0]
             ?? error.error.errors.authors?.[0]
+            ?? error.error.errors.genres?.[0]
             ?? error.error.errors.editor_id?.[0]
             ?? error.error.errors.title?.[0];
           this.saving = false;
@@ -225,6 +238,17 @@ export class BookDialog implements OnInit {
     this.selectedAuthors.splice(index, 1);
     // rimuove dal formarray
     this.authors.removeAt(index);
+  }
+
+  private loadGenres(): void {
+    this.genreService.getGenres().subscribe({
+      next: (response) => {
+        this.genreOptions = response.genres;
+      },
+      error: () => {
+        this.error = 'Impossibile caricare i generi';
+      },
+    });
   }
   
   // funziona come per gli autori ma senza formarry
